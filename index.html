@@ -1,0 +1,535 @@
+<title>Tally</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F2F0EA;
+    --surface: #FFFFFF;
+    --surface-sunken: #EAE7DE;
+    --text: #232420;
+    --text-muted: #75746A;
+    --text-faint: #A6A497;
+    --accent: #2F6F62;
+    --accent-strong: #204E44;
+    --accent-soft: #E1EEE8;
+    --owe: #B8502F;
+    --owe-soft: #F5E4DC;
+    --get: #2F6F62;
+    --get-soft: #E1EEE8;
+    --border: #DDD9CC;
+    --border-strong: #C7C2B0;
+    --focus: #2F6F62;
+    --shadow: 0 1px 2px rgba(35,36,32,0.04), 0 8px 24px -12px rgba(35,36,32,0.12);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1A1C19;
+      --surface: #232622;
+      --surface-sunken: #1E211D;
+      --text: #EDEBE3;
+      --text-muted: #A19F92;
+      --text-faint: #6E6C60;
+      --accent: #6FBFA9;
+      --accent-strong: #8FD3BF;
+      --accent-soft: #253530;
+      --owe: #E39572;
+      --owe-soft: #332621;
+      --get: #6FBFA9;
+      --get-soft: #1F332C;
+      --border: #34372F;
+      --border-strong: #43463C;
+      --focus: #6FBFA9;
+      --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 8px 24px -12px rgba(0,0,0,0.5);
+    }
+  }
+
+  :root[data-theme="dark"] {
+    --bg: #1A1C19;
+    --surface: #232622;
+    --surface-sunken: #1E211D;
+    --text: #EDEBE3;
+    --text-muted: #A19F92;
+    --text-faint: #6E6C60;
+    --accent: #6FBFA9;
+    --accent-strong: #8FD3BF;
+    --accent-soft: #253530;
+    --owe: #E39572;
+    --owe-soft: #332621;
+    --get: #6FBFA9;
+    --get-soft: #1F332C;
+    --border: #34372F;
+    --border-strong: #43463C;
+    --focus: #6FBFA9;
+    --shadow: 0 1px 2px rgba(0,0,0,0.2), 0 8px 24px -12px rgba(0,0,0,0.5);
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: "IBM Plex Sans", -apple-system, "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    padding: 56px 20px 80px;
+    line-height: 1.5;
+  }
+
+  main {
+    width: 100%;
+    max-width: 620px;
+  }
+
+  header {
+    margin-bottom: 36px;
+  }
+
+  h1 {
+    font-family: "Fraunces", Georgia, serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+    margin: 0 0 8px;
+    color: var(--text);
+  }
+
+  header p {
+    color: var(--text-muted);
+    font-size: 0.98rem;
+    max-width: 46ch;
+    margin: 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    padding: 28px;
+    margin-bottom: 24px;
+  }
+
+  .card + .card { margin-top: 24px; }
+
+  .card-label {
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-faint);
+    margin: 0 0 18px;
+  }
+
+  #rows {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 140px 32px;
+    align-items: center;
+    gap: 14px;
+    padding: 9px 0;
+    border-bottom: 1px dotted var(--border-strong);
+  }
+
+  .row:last-child { border-bottom: none; }
+
+  .row input[type="text"],
+  .row input[type="number"] {
+    font-family: inherit;
+    font-size: 0.98rem;
+    color: var(--text);
+    background: transparent;
+    border: none;
+    border-radius: 6px;
+    padding: 7px 8px;
+    width: 100%;
+    outline: none;
+  }
+
+  .row input[type="text"]:focus,
+  .row input[type="number"]:focus {
+    background: var(--surface-sunken);
+    box-shadow: 0 0 0 2px var(--focus);
+  }
+
+  .row input[type="number"] {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .row input::placeholder { color: var(--text-faint); }
+
+  .amount-wrap {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-faint);
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.95rem;
+  }
+
+  .remove-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 7px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-faint);
+    font-size: 1.05rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.12s ease, color 0.12s ease;
+  }
+
+  .remove-btn:hover {
+    background: var(--owe-soft);
+    color: var(--owe);
+  }
+
+  .remove-btn:focus-visible {
+    outline: 2px solid var(--focus);
+    outline-offset: 1px;
+  }
+
+  .add-btn {
+    margin-top: 16px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--accent-strong);
+    background: var(--accent-soft);
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 9px 14px;
+    cursor: pointer;
+    transition: filter 0.12s ease;
+  }
+
+  .add-btn:hover { filter: brightness(0.96); }
+  .add-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+  .summary-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    font-size: 0.95rem;
+  }
+
+  .summary-row .k { color: var(--text-muted); }
+  .summary-row .v {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+  }
+
+  .summary-row.total .v {
+    font-weight: 500;
+    font-size: 1.05rem;
+  }
+
+  .balances {
+    margin-top: 6px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+
+  .balance-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px dotted var(--border);
+    font-size: 0.92rem;
+  }
+
+  .balance-item:last-child { border-bottom: none; }
+
+  .balance-item .name { color: var(--text); }
+
+  .pill {
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-size: 0.82rem;
+    font-variant-numeric: tabular-nums;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .pill.get { background: var(--get-soft); color: var(--get); }
+  .pill.owe { background: var(--owe-soft); color: var(--owe); }
+  .pill.even { background: var(--surface-sunken); color: var(--text-faint); }
+
+  #settlement-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .txn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: var(--surface-sunken);
+    border-radius: 10px;
+    font-size: 0.95rem;
+  }
+
+  .txn .who {
+    font-weight: 500;
+  }
+
+  .txn .arrow {
+    color: var(--text-faint);
+    font-size: 0.85rem;
+  }
+
+  .txn .amt {
+    margin-left: auto;
+    font-family: "IBM Plex Mono", ui-monospace, monospace;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-strong);
+    font-weight: 500;
+  }
+
+  .empty-state {
+    color: var(--text-faint);
+    font-size: 0.92rem;
+    padding: 4px 0;
+  }
+
+  footer {
+    margin-top: 32px;
+    text-align: center;
+    color: var(--text-faint);
+    font-size: 0.82rem;
+  }
+
+  @media (max-width: 480px) {
+    .row { grid-template-columns: 1fr 96px 28px; gap: 8px; }
+    .card { padding: 20px; }
+    h1 { font-size: 2rem; }
+  }
+</style>
+
+<main>
+  <header>
+    <h1>Tally</h1>
+    <p>Everyone chipped in different amounts. Enter who paid what, and Tally works out the fewest payments needed to even it all out.</p>
+  </header>
+
+  <section class="card">
+    <p class="card-label">Who paid what</p>
+    <div id="rows"></div>
+    <button class="add-btn" id="add-row" type="button">+ Add person</button>
+  </section>
+
+  <section class="card">
+    <p class="card-label">Summary</p>
+    <div class="summary-row">
+      <span class="k">Total spent</span>
+      <span class="v" id="sum-total">$0.00</span>
+    </div>
+    <div class="summary-row">
+      <span class="k">People splitting</span>
+      <span class="v" id="sum-count">0</span>
+    </div>
+    <div class="summary-row total">
+      <span class="k">Fair share, each</span>
+      <span class="v" id="sum-share">$0.00</span>
+    </div>
+    <div class="balances" id="balances"></div>
+  </section>
+
+  <section class="card">
+    <p class="card-label">Who pays whom</p>
+    <div id="settlement-list"></div>
+  </section>
+
+  <footer>Nothing here is saved or sent anywhere — it lives in this tab only.</footer>
+</main>
+
+<script>
+  const rowsEl = document.getElementById('rows');
+  const addBtn = document.getElementById('add-row');
+
+  const seedData = [
+    { name: '', amount: '' },
+    { name: '', amount: '' },
+    { name: '', amount: '' },
+  ];
+
+  let rowIdCounter = 0;
+
+  function loadSaved() {
+    try {
+      const raw = localStorage.getItem('tally-people');
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (Array.isArray(parsed) && parsed.length) return parsed;
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function saveState(people) {
+    try {
+      localStorage.setItem('tally-people', JSON.stringify(people));
+    } catch (e) {
+      /* storage unavailable — proceed without persistence */
+    }
+  }
+
+  function createRow(data) {
+    const id = 'r' + (rowIdCounter++);
+    const row = document.createElement('div');
+    row.className = 'row';
+    row.dataset.id = id;
+    row.innerHTML = `
+      <input type="text" class="name-input" placeholder="Name" value="${escapeAttr(data.name || '')}" autocomplete="off">
+      <div class="amount-wrap">
+        <span aria-hidden="true">$</span>
+        <input type="number" class="amount-input" placeholder="0.00" min="0" step="0.01" value="${data.amount !== undefined && data.amount !== '' ? data.amount : ''}">
+      </div>
+      <button class="remove-btn" type="button" aria-label="Remove person" title="Remove">&times;</button>
+    `;
+    rowsEl.appendChild(row);
+
+    const nameInput = row.querySelector('.name-input');
+    const amountInput = row.querySelector('.amount-input');
+    const removeBtn = row.querySelector('.remove-btn');
+
+    nameInput.addEventListener('input', handleChange);
+    amountInput.addEventListener('input', handleChange);
+    removeBtn.addEventListener('click', () => {
+      row.remove();
+      handleChange();
+    });
+
+    return row;
+  }
+
+  function escapeAttr(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+  }
+
+  function fmt(n) {
+    const sign = n < 0 ? '-' : '';
+    return sign + '$' + Math.abs(n).toFixed(2);
+  }
+
+  function getPeople() {
+    return Array.from(rowsEl.querySelectorAll('.row')).map(row => {
+      const name = row.querySelector('.name-input').value.trim();
+      const amountRaw = row.querySelector('.amount-input').value;
+      const amount = amountRaw === '' ? 0 : parseFloat(amountRaw);
+      return { name, amount: isNaN(amount) ? 0 : amount };
+    });
+  }
+
+  function computeSettlement(balances) {
+    // balances: [{name, balance}] in cents (integers)
+    const creditors = balances.filter(p => p.balance > 0).map(p => ({ ...p })).sort((a, b) => b.balance - a.balance);
+    const debtors = balances.filter(p => p.balance < 0).map(p => ({ ...p, balance: -p.balance })).sort((a, b) => b.balance - a.balance);
+    const txns = [];
+    let i = 0, j = 0;
+    while (i < debtors.length && j < creditors.length) {
+      const d = debtors[i];
+      const c = creditors[j];
+      const amt = Math.min(d.balance, c.balance);
+      if (amt > 0) {
+        txns.push({ from: d.name, to: c.name, amount: amt });
+      }
+      d.balance -= amt;
+      c.balance -= amt;
+      if (d.balance <= 0) i++;
+      if (c.balance <= 0) j++;
+    }
+    return txns;
+  }
+
+  function render() {
+    const people = getPeople();
+    saveState(people);
+
+    const named = people.filter(p => p.name !== '');
+    const total = people.reduce((s, p) => s + p.amount, 0);
+    const n = named.length;
+
+    document.getElementById('sum-total').textContent = fmt(total);
+    document.getElementById('sum-count').textContent = String(n);
+
+    const balancesEl = document.getElementById('balances');
+    const settlementEl = document.getElementById('settlement-list');
+
+    if (n === 0) {
+      document.getElementById('sum-share').textContent = fmt(0);
+      balancesEl.innerHTML = '<p class="empty-state">Add at least one named person to see balances.</p>';
+      settlementEl.innerHTML = '<p class="empty-state">Nothing to settle yet.</p>';
+      return;
+    }
+
+    // work in integer cents to avoid float drift
+    const totalCents = Math.round(total * 100);
+    const shareCents = Math.floor(totalCents / n);
+    let remainder = totalCents - shareCents * n;
+
+    document.getElementById('sum-share').textContent = fmt(shareCents / 100);
+
+    const balances = named.map((p, idx) => {
+      const paidCents = Math.round(p.amount * 100);
+      let thisShare = shareCents;
+      if (remainder > 0) { thisShare += 1; remainder -= 1; }
+      return { name: p.name, balance: paidCents - thisShare };
+    });
+
+    balancesEl.innerHTML = '';
+    balances.forEach(b => {
+      const item = document.createElement('div');
+      item.className = 'balance-item';
+      let pillClass = 'even';
+      let pillText = 'settled';
+      if (b.balance > 0) { pillClass = 'get'; pillText = 'gets back ' + fmt(b.balance / 100); }
+      else if (b.balance < 0) { pillClass = 'owe'; pillText = 'owes ' + fmt(-b.balance / 100); }
+      item.innerHTML = `<span class="name">${escapeAttr(b.name)}</span><span class="pill ${pillClass}">${pillText}</span>`;
+      balancesEl.appendChild(item);
+    });
+
+    const txns = computeSettlement(balances);
+    settlementEl.innerHTML = '';
+    if (txns.length === 0) {
+      settlementEl.innerHTML = '<p class="empty-state">Everyone already paid their fair share — nothing to send.</p>';
+    } else {
+      txns.forEach(t => {
+        const el = document.createElement('div');
+        el.className = 'txn';
+        el.innerHTML = `<span class="who">${escapeAttr(t.from)}</span><span class="arrow">&rarr;</span><span class="who">${escapeAttr(t.to)}</span><span class="amt">${fmt(t.amount / 100)}</span>`;
+        settlementEl.appendChild(el);
+      });
+    }
+  }
+
+  function handleChange() { render(); }
+
+  addBtn.addEventListener('click', () => {
+    createRow({ name: '', amount: '' });
+    render();
+  });
+
+  (loadSaved() || seedData).forEach(createRow);
+  render();
+</script>
